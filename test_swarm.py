@@ -129,13 +129,14 @@ async def test_artifact_tools():
 
     # Mock InvocationContext for ToolContext
     class MockInvocationContext:
-        app_name = "test_app"
-        user_id = "test_user"
-        session = session
-        artifact_service = artifact_service
+        def __init__(self, s, a):
+            self.app_name = "test_app"
+            self.user_id = "test_user"
+            self.session = s
+            self.artifact_service = a
 
     ctx = ToolContext(
-        invocation_context=MockInvocationContext(),
+        invocation_context=MockInvocationContext(session, artifact_service),
         event_actions=EventActions()
     )
 
