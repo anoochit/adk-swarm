@@ -111,6 +111,29 @@ def test_spawn_runtime_agent_ephemeral(sample_config):
     names = [a["name"] for a in data["agents"]]
     assert "ephemeral_agent" not in names
 
+def test_weather_and_datetime_tools():
+    from swarm_tools import get_current_datetime, get_weather_forecast
+
+    # Test datetime tool
+    dt = get_current_datetime("UTC")
+    assert dt["status"] == "success"
+    assert "date" in dt
+    assert "time" in dt
+    assert dt["timezone"] == "UTC"
+
+    # Test invalid timezone fallback
+    dt_invalid = get_current_datetime("Invalid/TZ")
+    assert dt_invalid["status"] == "warning"
+    assert dt_invalid["timezone"] == "UTC"
+
+    # Test weather tool response structure (mock or live)
+    w = get_weather_forecast("London")
+    assert w["status"] in ("success", "error")
+    if w["status"] == "success":
+        assert "temperature_C" in w
+        assert "condition" in w
+
+
 @pytest.mark.asyncio
 async def test_artifact_tools():
     from google.adk.tools import ToolContext
