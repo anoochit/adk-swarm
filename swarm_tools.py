@@ -90,6 +90,9 @@ def create_swarm_tools(registry: SwarmRegistry) -> list[Callable]:
 
         try:
             runner = InMemoryRunner(agent=agent, app_name=f"swarm_task_{agent_name}")
+            if tool_context and hasattr(tool_context, "_invocation_context") and tool_context._invocation_context.artifact_service:
+                runner.artifact_service = tool_context._invocation_context.artifact_service
+
             await runner.session_service.create_session(
                 app_name=f"swarm_task_{agent_name}",
                 user_id="swarm_coordinator",

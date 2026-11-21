@@ -9,6 +9,13 @@ import yaml
 from google.adk.agents import Agent
 
 
+DEFAULT_ARTIFACT_TOOLS = [
+    "save_file_as_artifact",
+    "load_file_artifact",
+    "list_session_artifacts",
+]
+
+
 class SwarmRegistry:
     def __init__(self, default_model: str = "gemini-2.5-flash"):
         self.default_model = default_model
@@ -124,11 +131,15 @@ class SwarmRegistry:
         if name in self.agents:
             raise ValueError(f"Agent '{name}' is already registered in the swarm.")
 
+        final_tools = list(tool_names) if tool_names is not None else []
+        for default_tool in DEFAULT_ARTIFACT_TOOLS:
+            if default_tool in self.tool_catalog and default_tool not in final_tools:
+                final_tools.append(default_tool)
+
         resolved_tools = []
-        if tool_names:
-            for t in tool_names:
-                if t in self.tool_catalog:
-                    resolved_tools.append(self.tool_catalog[t])
+        for t in final_tools:
+            if t in self.tool_catalog:
+                resolved_tools.append(self.tool_catalog[t])
 
         new_agent = Agent(
             name=name,
@@ -153,7 +164,7 @@ class SwarmRegistry:
                 name=name,
                 role=role,
                 instruction=instruction,
-                tool_names=tool_names,
+                tool_names=final_tools,
                 model=model,
             )
 
