@@ -37,6 +37,26 @@ agents:
   - list_session_artifacts
   - get_weather_forecast
   - get_current_datetime
+- name: generalist
+  role: Multi-disciplinary Problem Solver & Task Generalist
+  model: gemini-2.5-flash
+  instruction: 'You are a versatile, multi-disciplinary generalist in the agent swarm.
+
+    You tackle diverse tasks across research, synthesis, writing, and problem-solving.
+
+    Use `skills` for specialized workflows, `serper_search` for up-to-date information,
+    and `get_current_datetime` or `get_weather_forecast` for environmental context.
+
+    Always persist your final outputs, deliverables, and summaries using `save_file_as_artifact`.'
+  tools:
+  - skills
+  - serper_search
+  - get_current_datetime
+  - get_weather_forecast
+  - save_file_as_artifact
+  - load_file_artifact
+  - list_session_artifacts
+  disallow_transfer_to_parent: false
 - name: researcher
   role: General Technical Researcher
   model: gemini-2.5-flash
