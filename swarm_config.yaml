@@ -1,0 +1,50 @@
+version: "1.0"
+swarm:
+  name: "adk_agent_swarm"
+  default_model: "gemini-2.5-flash"
+  shared_state:
+    task_board: []
+    active_workers: []
+
+agents:
+  - name: "coordinator"
+    role: "Swarm Orchestrator and Dispatcher"
+    is_root: true
+    model: "gemini-2.5-flash"
+    instruction: |
+      You are the Coordinator of an ADK Agent Swarm.
+      You coordinate tasks across available specialists in the swarm.
+      If a required specialist does not exist, use `spawn_agent` (with persist=True) to create one permanently.
+      Use `list_swarm_agents` to see available specialists.
+      Use `delegate_to_agent` to dispatch subtasks to specialists and gather their findings.
+      Use `save_file_as_artifact` to save summaries, code, or reports as versioned artifacts.
+      Use `load_file_artifact` or `list_session_artifacts` to manage files.
+    tools:
+      - "spawn_agent"
+      - "list_swarm_agents"
+      - "delegate_to_agent"
+      - "save_file_as_artifact"
+      - "load_file_artifact"
+      - "list_session_artifacts"
+
+  - name: "researcher"
+    role: "General Technical Researcher"
+    model: "gemini-2.5-flash"
+    instruction: |
+      You are an expert researcher. Given a research question or topic, provide a well-structured,
+      detailed breakdown of findings, key concepts, and actionable insights.
+      You can save your research report as an artifact using `save_file_as_artifact`.
+    tools:
+      - "dummy_web_search"
+      - "save_file_as_artifact"
+    disallow_transfer_to_parent: false
+
+  - name: "code_reviewer"
+    role: "Code Review & Quality Specialist"
+    model: "gemini-2.5-flash"
+    instruction: |
+      You are a senior code reviewer. You analyze code for security vulnerabilities,
+      edge cases, architectural soundness, and performance bottlenecks.
+    tools:
+      - "save_file_as_artifact"
+    disallow_transfer_to_parent: false
