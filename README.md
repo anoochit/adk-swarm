@@ -204,7 +204,6 @@ agents:
     instruction: |
       You are an expert researcher...
     tools:
-      - google_search
       - get_current_datetime
       - get_weather_forecast
       - save_file_as_artifact
@@ -253,7 +252,7 @@ The agent is instantly usable in the session and permanently added to `swarm_con
 The coordinator calls:
 
 1. `delegate_to_agent(agent_name="researcher", task="Research 2026 quantum computing breakthroughs...")`
-2. Researcher uses `google_search` and saves the findings via `save_file_as_artifact(filename="quantum_2026.md", content="...")`.
+2. Researcher analyzes the breakthroughs and saves the findings via `save_file_as_artifact(filename="quantum_2026.md", content="...")`.
 3. The result is stored as a session artifact and available for downstream specialist review.
 
 ---
