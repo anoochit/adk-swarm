@@ -90,12 +90,21 @@ def create_swarm_tools(registry: SwarmRegistry) -> list[Callable]:
 
         try:
             runner = InMemoryRunner(agent=agent, app_name=f"swarm_task_{agent_name}")
+            await runner.session_service.create_session(
+                app_name=f"swarm_task_{agent_name}",
+                user_id="swarm_coordinator",
+                session_id=f"session_{agent_name}",
+            )
+            new_message = genai_types.Content(
+                role="user",
+                parts=[genai_types.Part(text=task_prompt)],
+            )
             response_chunks = []
 
             async for event in runner.run_async(
                 user_id="swarm_coordinator",
                 session_id=f"session_{agent_name}",
-                message=task_prompt,
+                new_message=new_message,
             ):
                 if event.content and event.content.parts:
                     for part in event.content.parts:

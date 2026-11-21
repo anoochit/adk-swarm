@@ -1,7 +1,7 @@
 [project]
 name = "adk-swarm"
 version = "0.1.0"
-description = "Add your description here"
+description = "ADK Agent Swarm with declarative YAML config and runtime agent persistence"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -11,3 +11,7 @@ dependencies = [
     "pytest-asyncio>=1.5.0",
     "pyyaml>=6.0.4",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"

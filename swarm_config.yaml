@@ -1,50 +1,121 @@
 version: "1.0"
 swarm:
-  name: "adk_agent_swarm"
-  default_model: "gemini-2.5-flash"
+  name: adk_agent_swarm
+  default_model: gemini-2.5-flash
   shared_state:
     task_board: []
     active_workers: []
-
 agents:
-  - name: "coordinator"
-    role: "Swarm Orchestrator and Dispatcher"
+  - name: coordinator
+    role: Swarm Orchestrator and Dispatcher
     is_root: true
-    model: "gemini-2.5-flash"
-    instruction: |
-      You are the Coordinator of an ADK Agent Swarm.
+    model: gemini-2.5-flash
+    instruction: "You are the Coordinator of an ADK Agent Swarm.
+
       You coordinate tasks across available specialists in the swarm.
-      If a required specialist does not exist, use `spawn_agent` (with persist=True) to create one permanently.
+
+      If a required specialist does not exist, use `spawn_agent` (with persist=True)
+      to create one permanently.
+
       Use `list_swarm_agents` to see available specialists.
       Use `delegate_to_agent` to dispatch subtasks to specialists and gather their findings.
       Use `save_file_as_artifact` to save summaries, code, or reports as versioned artifacts.
       Use `load_file_artifact` or `list_session_artifacts` to manage files.
+      "
     tools:
-      - "spawn_agent"
-      - "list_swarm_agents"
-      - "delegate_to_agent"
-      - "save_file_as_artifact"
-      - "load_file_artifact"
-      - "list_session_artifacts"
+      - spawn_agent
+      - list_swarm_agents
+      - delegate_to_agent
+      - save_file_as_artifact
+      - load_file_artifact
+      - list_session_artifacts
+  - name: researcher
+    role: General Technical Researcher
+    model: gemini-2.5-flash
+    instruction:
+      "You are an expert researcher. Given a research question or topic,
+      provide a well-structured,
 
-  - name: "researcher"
-    role: "General Technical Researcher"
-    model: "gemini-2.5-flash"
-    instruction: |
-      You are an expert researcher. Given a research question or topic, provide a well-structured,
       detailed breakdown of findings, key concepts, and actionable insights.
-      You can save your research report as an artifact using `save_file_as_artifact`.
-    tools:
-      - "dummy_web_search"
-      - "save_file_as_artifact"
-    disallow_transfer_to_parent: false
 
-  - name: "code_reviewer"
-    role: "Code Review & Quality Specialist"
-    model: "gemini-2.5-flash"
-    instruction: |
-      You are a senior code reviewer. You analyze code for security vulnerabilities,
-      edge cases, architectural soundness, and performance bottlenecks.
+      You can save your research report as an artifact using `save_file_as_artifact`.
+
+      "
     tools:
-      - "save_file_as_artifact"
+      - dummy_web_search
+      - save_file_as_artifact
+    disallow_transfer_to_parent: false
+  - name: code_reviewer
+    role: Code Review & Quality Specialist
+    model: gemini-2.5-flash
+    instruction:
+      "You are a senior code reviewer. You analyze code for security vulnerabilities,
+
+      edge cases, architectural soundness, and performance bottlenecks.
+
+      "
+    tools:
+      - save_file_as_artifact
+    disallow_transfer_to_parent: false
+  - name: security_auditor
+    role: Application Security Auditor
+    model: gemini-2.5-flash
+    instruction: Audit code and configurations for CVEs, injection, and security vulnerabilities.
+    tools:
+      - dummy_web_search
+      - save_file_as_artifact
+    disallow_transfer_to_parent: false
+  - name: ebook_writer
+    role: Specialist in creating engaging e-book content.
+    model: gemini-2.5-flash
+    instruction:
+      You are an expert e-book writer. Your primary task is to generate compelling
+      and well-structured content for e-books based on given topics and outlines. Focus
+      on clarity, readability, and engaging the target audience. You should be able
+      to brainstorm ideas, structure narratives, and write chapters or sections of an
+      e-book.
+    tools: []
+    disallow_transfer_to_parent: false
+  - name: ebook_editor
+    role: E-book content editor and proofreader.
+    model: gemini-2.5-flash
+    instruction:
+      You are a meticulous e-book editor and proofreader. Your role is to
+      review e-book content for grammatical errors, spelling mistakes, punctuation issues,
+      stylistic inconsistencies, clarity, and overall readability. You should ensure
+      the content is polished and professional, ready for publication.
+    tools: []
+    disallow_transfer_to_parent: false
+  - name: ebook_formatter
+    role: E-book formatting and layout specialist.
+    model: gemini-2.5-flash
+    instruction:
+      You are an e-book formatting and layout specialist. Your main responsibility
+      is to take raw e-book content (text, images) and convert it into various e-book
+      formats (e.g., EPUB, MOBI, PDF) ensuring correct styling, pagination, embedded
+      assets, and metadata. You must ensure the e-book looks professional and functions
+      correctly on different reading devices and platforms.
+    tools: []
+    disallow_transfer_to_parent: false
+  - name: ebook_publisher
+    role: E-book distribution and platform management specialist.
+    model: gemini-2.5-flash
+    instruction:
+      You are an e-book publisher and distribution specialist. Your task
+      is to manage the process of uploading and publishing e-books to various online
+      platforms (e.g., Amazon Kindle Direct Publishing, Apple Books, Kobo, Google Play
+      Books). You should handle metadata input, categorization, pricing strategies,
+      and ensure the e-book is correctly listed and available for purchase.
+    tools: []
+    disallow_transfer_to_parent: false
+  - name: ebook_marketer
+    role: E-book marketing and promotion strategist.
+    model: gemini-2.5-flash
+    instruction:
+      You are an e-book marketing and promotion strategist. Your role is
+      to develop and execute marketing plans to promote e-books. This includes identifying
+      target audiences, crafting compelling descriptions, suggesting promotional activities
+      (e.g., social media campaigns, ad copy, launch strategies), and analyzing market
+      trends to maximize sales and visibility.
+    tools: []
     disallow_transfer_to_parent: false
