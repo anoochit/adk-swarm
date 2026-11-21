@@ -8,20 +8,100 @@ Tools for runtime swarm orchestration and artifact file handling:
 - list_session_artifacts: List all artifacts stored in the current session
 - get_weather_forecast: Fetch live weather forecast using wttr.in
 - get_current_datetime: Return current timestamp, date, time and timezone
+- serper_search: Web search using Serper API (google.serper.dev)
 """
 from collections.abc import Callable
 from datetime import datetime, timezone as dt_timezone
 import json
+import os
 from typing import Any
 import urllib.parse
 import urllib.request
 import zoneinfo
+from dotenv import load_dotenv
 
 from google.adk.runners import InMemoryRunner
 from google.adk.tools import ToolContext
 from google.genai import types as genai_types
 
 from swarm_registry import SwarmRegistry
+
+# Ensure environment variables from .env are loaded
+load_dotenv()
+
+
+def serper_search(query: str, num_results: int = 5) -> dict[str, Any]:
+    """Performs a web search using the Serper API (google.serper.dev).
+
+    Args:
+        query: Search query string.
+        num_results: Number of organic search results to return (default: 5).
+    """
+    clean_query = query.strip()
+    if not clean_query:
+        return {"status": "error", "message": "Search query cannot be empty."}
+
+    api_key = os.getenv("SERPER_API_KEY", "").strip()
+    if not api_key:
+        return {
+            "status": "error",
+            "message": "SERPER_API_KEY environment variable is missing. Please set SERPER_API_KEY in your .env file or environment.",
+        }
+
+    url = "https://google.serper.dev/search"
+    payload = json.dumps({"q": clean_query, "num": max(1, min(num_results, 20))}).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "X-API-KEY": api_key,
+            "Content-Type": "application/json",
+            "User-Agent": "ADK-Swarm/1.0",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+
+        organic_results = []
+        for item in data.get("organic", []):
+            organic_results.append({
+                "title": item.get("title"),
+                "link": item.get("link"),
+                "snippet": item.get("snippet"),
+                "position": item.get("position"),
+            })
+
+        output: dict[str, Any] = {
+            "status": "success",
+            "query": clean_query,
+            "organic": organic_results,
+        }
+
+        if "knowledgeGraph" in data:
+            kg = data["knowledgeGraph"]
+            output["knowledge_graph"] = {
+                "title": kg.get("title"),
+                "type": kg.get("type"),
+                "description": kg.get("description"),
+            }
+
+        if "peopleAlsoAsk" in data:
+            output["people_also_ask"] = [
+                {"question": q.get("question"), "snippet": q.get("snippet")}
+                for q in data["peopleAlsoAsk"][:3]
+            ]
+
+        return output
+    except Exception as e:
+        return {
+            "status": "error",
+            "query": clean_query,
+            "message": f"Serper API search failed: {e!s}",
+        }
+
 
 
 def get_weather_forecast(location: str = "London") -> dict[str, Any]:

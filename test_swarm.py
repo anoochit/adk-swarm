@@ -182,3 +182,66 @@ async def test_artifact_tools():
     load_res = await load_tool(filename="report.txt", tool_context=ctx)
     assert load_res["status"] == "success"
     assert load_res["content"] == "Hello Artifact World"
+
+def test_serper_search_missing_key(monkeypatch):
+    from swarm_tools import serper_search
+    monkeypatch.delenv("SERPER_API_KEY", raising=False)
+    res = serper_search("python adk")
+    assert res["status"] == "error"
+    assert "SERPER_API_KEY" in res["message"]
+
+def test_serper_search_empty_query():
+    from swarm_tools import serper_search
+    res = serper_search("   ")
+    assert res["status"] == "error"
+    assert "Search query cannot be empty" in res["message"]
+
+def test_serper_search_mocked_success(monkeypatch):
+    import io
+    import json
+    from swarm_tools import serper_search
+
+    monkeypatch.setenv("SERPER_API_KEY", "test_mock_serper_key")
+
+    mock_response_data = {
+        "organic": [
+            {
+                "title": "Google ADK Docs",
+                "link": "https://google.github.io/adk",
+                "snippet": "Official documentation for Google Agent Development Kit.",
+                "position": 1
+            }
+        ],
+        "knowledgeGraph": {
+            "title": "Agent Development Kit",
+            "type": "Software",
+            "description": "ADK is a framework for multi-agent systems."
+        },
+        "peopleAlsoAsk": [
+            {"question": "How to use ADK?", "snippet": "Install via pip or uv."}
+        ]
+    }
+
+    class MockResponse:
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+        def read(self):
+            return json.dumps(mock_response_data).encode("utf-8")
+
+    def mock_urlopen(req, timeout=10):
+        # Verify request headers
+        assert req.get_header("X-api-key") == "test_mock_serper_key"
+        return MockResponse()
+
+    monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)
+
+    res = serper_search("Google ADK", num_results=3)
+    assert res["status"] == "success"
+    assert res["query"] == "Google ADK"
+    assert len(res["organic"]) == 1
+    assert res["organic"][0]["title"] == "Google ADK Docs"
+    assert res["knowledge_graph"]["title"] == "Agent Development Kit"
+    assert len(res["people_also_ask"]) == 1
+

@@ -8,7 +8,12 @@ Demonstrates:
 import asyncio
 from google.adk.tools import google_search
 from swarm_registry import SwarmRegistry
-from swarm_tools import create_swarm_tools, get_current_datetime, get_weather_forecast
+from swarm_tools import (
+    create_swarm_tools,
+    get_current_datetime,
+    get_weather_forecast,
+    serper_search,
+)
 
 # Sample domain tool
 def dummy_web_search(query: str) -> dict:
@@ -25,6 +30,7 @@ def build_swarm(config_path: str = "swarm_config.yaml") -> SwarmRegistry:
     registry = SwarmRegistry()
     registry.register_tool("google_search", google_search)
     registry.register_tool("dummy_web_search", dummy_web_search)
+    registry.register_tool("serper_search", serper_search)
     registry.register_tool("get_weather_forecast", get_weather_forecast)
     registry.register_tool("get_current_datetime", get_current_datetime)
 

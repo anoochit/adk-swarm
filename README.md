@@ -162,7 +162,8 @@ All tools are modular and can be assigned to any agent in `swarm_config.yaml` or
 | **Artifact Management** | `save_file_as_artifact` | `filename`, `content`, `mime_type` | Saves text, markdown, or code as a versioned session artifact. |
 | | `load_file_artifact` | `filename`, `version=None` | Loads a saved artifact from the current session (latest or specific version). |
 | | `list_session_artifacts` | _(none)_ | Lists all artifact files created during the active session. |
-| **Real-time Context** | `google_search` | `query` | Built-in Google Search tool from Google ADK. |
+| **Real-time Context & Search** | `serper_search` | `query`, `num_results=5` | Google Web Search via Serper API (`google.serper.dev`). Reads `SERPER_API_KEY` from `.env`. |
+| | `google_search` | `query` | Built-in Google Search tool from Google ADK. |
 | | `get_weather_forecast` | `location="London"` | Real-time weather conditions and 3-day forecast via wttr.in. |
 | | `get_current_datetime` | `timezone="UTC"` | Current time, date, weekday, and ISO timestamp for any IANA timezone. |
 
