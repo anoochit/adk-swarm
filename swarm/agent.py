@@ -21,6 +21,10 @@ def _build() -> App:
     registry.register_tool("get_weather_forecast", get_weather_forecast)
     registry.register_tool("get_current_datetime", get_current_datetime)
 
+    # Auto-load skills from project root skills/ directory
+    project_root = Path(__file__).parent.parent
+    registry.load_skills_toolset(project_root / "skills")
+
     for fn in create_swarm_tools(registry):
         registry.register_tool(fn.__name__, fn)
 

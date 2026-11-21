@@ -34,6 +34,9 @@ def build_swarm(config_path: str = "swarm_config.yaml") -> SwarmRegistry:
     registry.register_tool("get_weather_forecast", get_weather_forecast)
     registry.register_tool("get_current_datetime", get_current_datetime)
 
+    # Auto-load skills from skills/ folder
+    registry.load_skills_toolset("skills")
+
     swarm_tools = create_swarm_tools(registry)
     for tool_fn in swarm_tools:
         registry.register_tool(tool_fn.__name__, tool_fn)

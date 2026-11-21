@@ -245,3 +245,34 @@ def test_serper_search_mocked_success(monkeypatch):
     assert res["knowledge_graph"]["title"] == "Agent Development Kit"
     assert len(res["people_also_ask"]) == 1
 
+def test_load_skills_toolset(tmp_path):
+    from swarm_registry import SwarmRegistry
+
+    # Create temporary skill directory
+    skills_dir = tmp_path / "skills"
+    test_skill = skills_dir / "sample-skill"
+    test_skill.mkdir(parents=True)
+    (test_skill / "SKILL.md").write_text(
+        "---\nname: sample-skill\ndescription: A sample skill for testing.\n---\n# Sample Skill\nInstructions.",
+        encoding="utf-8"
+    )
+
+    registry = SwarmRegistry()
+    toolset = registry.load_skills_toolset(skills_dir)
+    assert toolset is not None
+    assert "skills" in registry.tool_catalog
+
+    # Assign to an agent
+    agent = registry.spawn_runtime_agent(
+        name="skilled_worker",
+        role="Skilled Specialist",
+        instruction="Use your skills.",
+        tool_names=["skills"],
+        persist=False
+    )
+    assert any("SkillToolset" in type(t).__name__ for t in agent.tools)
+    roster = registry.list_agents()
+    worker_entry = next(a for a in roster if a["name"] == "skilled_worker")
+    assert "skills" in worker_entry["tools"]
+
+

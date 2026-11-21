@@ -66,7 +66,8 @@ flowchart TD
   - Direct execution via `delegate_to_agent(agent_name, task)` runner dispatch.
   - Native ADK sub-agent transfer hierarchies.
 - **Session-Scoped Versioned Artifacts**: Full set of tools for saving, loading, and listing session deliverables (`save_file_as_artifact`, `load_file_artifact`, `list_session_artifacts`) across conversation rounds.
-- **Live Real-World Tools**: Equips agents with real-time web search (`google_search`), live weather (`get_weather_forecast`), and accurate datetime/timezone data (`get_current_datetime`).
+- **Native Agent Skills Support**: Agents can discover and execute standard Agent Skills (`skills/<skill-name>/SKILL.md`) using Google ADK's native `SkillToolset` (e.g. progressive disclosure via `list_skills` and `load_skill`).
+- **Live Real-World Tools**: Equips agents with Serper Google Search (`serper_search`), live weather (`get_weather_forecast`), and accurate datetime/timezone data (`get_current_datetime`).
 - **ADK Native Tooling**: Out-of-the-box support for `adk run` (terminal REPL), `adk web` (browser visual playground), and `adk api_server`.
 
 ---
@@ -162,6 +163,7 @@ All tools are modular and can be assigned to any agent in `swarm_config.yaml` or
 | **Artifact Management** | `save_file_as_artifact` | `filename`, `content`, `mime_type` | Saves text, markdown, or code as a versioned session artifact. |
 | | `load_file_artifact` | `filename`, `version=None` | Loads a saved artifact from the current session (latest or specific version). |
 | | `list_session_artifacts` | _(none)_ | Lists all artifact files created during the active session. |
+| **Agent Skills** | `skills` | _(managed)_ | Native `SkillToolset` exposing `list_skills`, `load_skill`, and skill resources loaded from `skills/`. |
 | **Real-time Context & Search** | `serper_search` | `query`, `num_results=5` | Google Web Search via Serper API (`google.serper.dev`). Reads `SERPER_API_KEY` from `.env`. |
 | | `google_search` | `query` | Built-in Google Search tool from Google ADK. |
 | | `get_weather_forecast` | `location="London"` | Real-time weather conditions and 3-day forecast via wttr.in. |

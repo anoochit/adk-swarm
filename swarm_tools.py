@@ -229,13 +229,22 @@ def create_swarm_tools(registry: SwarmRegistry) -> list[Callable]:
                 workers.append({"name": name, "role": role, "persisted": persist})
                 tool_context.session.state["swarm:workers"] = workers
 
+            def _tool_repr(t: Any) -> str:
+                if hasattr(t, "name") and t.name:
+                    return t.name
+                if hasattr(t, "__name__"):
+                    return t.__name__
+                if "SkillToolset" in type(t).__name__:
+                    return "skills"
+                return str(t)
+
             return {
                 "status": "success",
                 "message": f"Successfully spawned agent '{name}' (persisted={persist}).",
                 "agent": {
                     "name": agent.name,
                     "role": agent.description,
-                    "tools": [getattr(t, "name", getattr(t, "__name__", str(t))) for t in agent.tools],
+                    "tools": [_tool_repr(t) for t in agent.tools],
                 },
             }
         except Exception as e:

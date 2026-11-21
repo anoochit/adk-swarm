@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 import yaml
 from google.adk.agents import Agent
+from google.adk.skills import load_skills_from_dir
+from google.adk.tools.skill_toolset import SkillToolset
 
 
 DEFAULT_ARTIFACT_TOOLS = [
@@ -32,6 +34,29 @@ class SwarmRegistry:
     def register_tools(self, tools_dict: dict[str, Any]) -> None:
         """Register multiple tools at once."""
         self.tool_catalog.update(tools_dict)
+
+    def load_skills_toolset(self, skills_dir: str | Path = "skills") -> SkillToolset | None:
+        """Discovers and loads agent skills from the given directory into a SkillToolset.
+        
+        Registers the toolset under the name 'skills' in the tool catalog.
+        """
+        p = Path(skills_dir).resolve()
+        if not p.exists() or not p.is_dir():
+            return None
+
+        # Check if directory contains any skill subdirectories with SKILL.md
+        has_skills = any(child.is_dir() and (child / "SKILL.md").exists() for child in p.iterdir())
+        if not has_skills:
+            return None
+
+        try:
+            skills = load_skills_from_dir(p)
+            toolset = SkillToolset(skills=skills)
+            self.register_tool("skills", toolset)
+            return toolset
+        except Exception as e:
+            print(f"[SwarmRegistry] Warning: Failed to load skills from '{p}': {e}")
+            return None
 
     def load_from_config(self, config_path: str) -> Agent:
         """Loads swarm and agents specification from a YAML or JSON configuration file."""
@@ -180,10 +205,12 @@ class SwarmRegistry:
         for name, agent in self.agents.items():
             tool_names = []
             for t in agent.tools:
-                if hasattr(t, "name"):
+                if hasattr(t, "name") and t.name:
                     tool_names.append(t.name)
                 elif hasattr(t, "__name__"):
                     tool_names.append(t.__name__)
+                elif "SkillToolset" in type(t).__name__:
+                    tool_names.append("skills")
                 else:
                     tool_names.append(str(t))
             roster.append({
