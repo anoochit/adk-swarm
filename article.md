@@ -104,7 +104,7 @@ flowchart TD
 The architecture separates three concerns cleanly:
 
 | Layer | Responsibility | Implementation |
-|-------|---------------|----------------|
+| ------- | --------------- | ---------------- |
 | **Configuration** | Declarative agent definitions | `swarm_config.yaml` (YAML) |
 | **Registry** | Agent lifecycle, tool binding, persistence | `SwarmRegistry` class |
 | **Tools** | Capabilities agents can invoke | `swarm_tools.py` + external APIs |
@@ -183,7 +183,7 @@ agents:
 **Key schema fields:**
 
 | Field | Type | Purpose |
-|-------|------|---------|
+| ------- | ------ | --------- |
 | `name` | `string` | Unique agent identifier (used in spawn/delegate calls) |
 | `role` | `string` | Maps to ADK `Agent.description` — visible to the coordinator for routing |
 | `is_root` | `bool` | Marks the entry-point agent; all others become its `sub_agents` |
@@ -455,7 +455,7 @@ async def save_file_as_artifact(filename, content, mime_type="text/plain",
 The artifact system supports:
 
 | Operation | Tool | Description |
-|-----------|------|-------------|
+| ----------- | ------ | ------------- |
 | **Create/Update** | `save_file_as_artifact` | Saves content with automatic version numbering |
 | **Read** | `load_file_artifact` | Retrieves by filename, optionally at a specific version |
 | **Index** | `list_session_artifacts` | Lists all artifact filenames in the session |
@@ -493,6 +493,7 @@ def load_skills_toolset(self, skills_dir="skills") -> SkillToolset | None:
 ```
 
 Once loaded, agents with the `skills` tool can:
+
 - **`list_skills`** — Browse available skills by name and description.
 - **`load_skill`** — Read the full skill instructions and apply them to the current task.
 
@@ -529,7 +530,7 @@ root_agent = app.root_agent
 By exporting `app` and `root_agent` at the package level, the ADK CLI discovers the swarm automatically:
 
 | Command | Surface | Use Case |
-|---------|---------|----------|
+| --------- | --------- | ---------- |
 | `uv run adk web . --port 8000` | Browser DevUI | Visual playground with conversation history |
 | `uv run adk run swarm` | Terminal REPL | Interactive CLI session |
 | `uv run adk api_server` | HTTP API | Programmatic integration |
@@ -607,6 +608,7 @@ def test_serper_search_mocked_success(monkeypatch):
 ```
 
 Run the full suite:
+
 ```bash
 uv run pytest -v
 ```
@@ -666,7 +668,7 @@ Every artifact is versioned, every agent interaction is tracked, and the entire 
 ## Technical Stack Summary
 
 | Component | Technology | Version |
-|-----------|-----------|---------|
+| ----------- | ----------- | --------- |
 | Runtime | Python | ≥ 3.13 |
 | Agent Framework | Google ADK | ≥ 2.15.0 |
 | LLM | Gemini 2.5 Flash | — |
